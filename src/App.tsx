@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-// 아까 복사한 Lambda 함수 URL을 따옴표 안에 넣으세요.
-const API_URL = "https://jffierrwp3fksnetrkz3bca5hm0phnhz.lambda-url.us-east-1.on.aws/";
+const API_URL = import.meta.env.VITE_API_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 interface Guest {
   id: string;
@@ -16,7 +16,9 @@ function App() {
 
   // 1. 처음 로딩될 때 목록 가져오기 (GET)
   useEffect(() => {
-    fetch(API_URL)
+    fetch(API_URL, {
+      headers: { "X-Api-Key": API_KEY } // 헤더에 열쇠 추가!
+    })
       .then((res) => res.json())
       .then((data) => setGuests(data));
   }, []);
@@ -27,7 +29,10 @@ function App() {
 
     await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": API_KEY // 헤더에 열쇠 추가!
+      },
       body: JSON.stringify({ name, message }),
     });
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // 아까 복사한 Lambda 함수 URL을 따옴표 안에 넣으세요.
-const API_URL = "";
+const API_URL = "https://jffierrwp3fksnetrkz3bca5hm0phnhz.lambda-url.us-east-1.on.aws/";
 
 interface Guest {
   id: string;

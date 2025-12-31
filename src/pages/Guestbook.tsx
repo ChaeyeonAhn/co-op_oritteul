@@ -20,8 +20,6 @@ const MessageInputContainer = styled.div`
     padding: 10px;
 `
 
-
-
 function Guestbook() {
     const [guests, setGuests] = useState<Guest[]>([]);
     const [name, setName] = useState("");

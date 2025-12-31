@@ -2,8 +2,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Feed from './pages/Feed';
 import Create from './pages/Create';
+import Community from './pages/Community';
 import Guestbook from './pages/Guestbook';
 import Layout from './layout/layout';
+import My from './pages/My';
 
 function App() {
   return (
@@ -13,7 +15,9 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="feed" element={<Feed />} />
                 <Route path="create" element={<Create />} />
+                <Route path="community" element={<Community />} />
                 <Route path="guestbook" element={<Guestbook />} />
+                <Route path="my" element={<My />} />
             </Route>
         </Routes>
       </Router>

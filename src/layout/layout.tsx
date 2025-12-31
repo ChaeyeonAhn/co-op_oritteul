@@ -65,7 +65,8 @@ export default function Layout() {
             <Header>
                 <Bolder to="/">오리뜰</Bolder>
                 <Navbar>
-                    <Underline to="/create">작품 올리기</Underline>
+                    <Underline to="/feed">피드</Underline>
+                    <Underline to="/create">작품 업로드</Underline>
                     <Underline to="/community">커뮤니티</Underline>
                 </Navbar>
                 <Navbar>

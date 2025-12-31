@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import {useEffect, useState} from "react";
+import FeedCard from "../components/FeedCard.tsx";
 
 const API_URL = import.meta.env.VITE_ORITTEUL_API_URL + "/get-post";
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -66,14 +67,15 @@ export default function Feed() {
     return (
         <Container>
             <Title>
-                오리뜰 작품 모아보기
+                오리뜰 작품 피드
             </Title>
             <GridContainer>
                 {items.map((item, index) => (
-                    <Item key={index}>
-                        {item.title}
-                        {item.description}
-                    </Item>
+                    <FeedCard
+                        key={index}
+                        title={item.title}
+                        description={item.description}
+                    />
                 ))}
             </GridContainer>
 

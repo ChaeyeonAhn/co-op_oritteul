@@ -1,15 +1,11 @@
 import styled from 'styled-components';
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import FeedCard from "../components/FeedCard.tsx";
+import type { FeedItem } from "../types/FeedItem.ts";
 
 const API_URL = import.meta.env.VITE_ORITTEUL_API_URL + "/get-post";
 const API_KEY = import.meta.env.VITE_API_KEY;
-
-interface Item {
-    id: string;
-    title: string;
-    description: string;
-}
 
 const Container = styled.div`
     display: flex;
@@ -42,19 +38,10 @@ const GridContainer = styled.div`
   }
 `;
 
-const Item = styled.div`
-    display: flex;
-    width: 100%;
-    height: 245px;
-    background-color: #e5e5e5;
-    border-radius: 12px;
-    align-items: center;
-    justify-content: center;
-`;
-
 
 export default function Feed() {
-    const [items, setItems] = useState<Item[]>([]);
+    const [items, setItems] = useState<FeedItem[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch(API_URL, {
@@ -75,6 +62,7 @@ export default function Feed() {
                         key={index}
                         title={item.title}
                         description={item.description}
+                        onClick={() => navigate(`/feed/${item.id}`)}
                     />
                 ))}
             </GridContainer>

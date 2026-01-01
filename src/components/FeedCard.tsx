@@ -1,8 +1,10 @@
 import styled from "styled-components";
+import { ArrowIcon } from "../icons/ArrowIcon.tsx";
 
 interface FeedCardProps {
     title: string;
     description: string;
+    onClick?: () => void;
 }
 
 const Container = styled.div`
@@ -31,6 +33,16 @@ const Container = styled.div`
     }
 `;
 
+const BottomContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    align-items: flex-end;
+    justify-content: flex-end;
+    color: white;
+`
+
 const Title = styled.div`
     font-weight: 600;
     border-bottom: 2px solid;
@@ -43,11 +55,14 @@ const Description = styled.div`
 `
 
 
-export default function FeedCard({ title, description }: FeedCardProps) {
+export default function FeedCard({ title, description, onClick = () => {} }: FeedCardProps) {
     return (
-        <Container>
+        <Container onClick={onClick}>
             <Title>{title}</Title>
             <Description>{description}</Description>
+            <BottomContainer>
+                <ArrowIcon size={24}/>
+            </BottomContainer>
         </Container>
     );
 }

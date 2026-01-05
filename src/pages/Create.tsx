@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "react-oidc-context";
 
 const API_URL = import.meta.env.VITE_ORITTEUL_API_URL + "/create-post";
-const API_KEY = import.meta.env.VITE_API_KEY;
-
+// const API_KEY = import.meta.env.VITE_API_KEY;
 
 const Container = styled.div`
     display: flex;
@@ -82,16 +82,18 @@ export default function Create() {
     const navigate = useNavigate();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const auth = useAuth();
 
     const handleSubmit = async () => {
         if (!title || !description) return alert("제목과 내용을 입력하세요!");
 
         try {
+            if (auth.isAuthenticated && auth.user?.id_token) {
             const response = await fetch(API_URL, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "X-Api-Key": API_KEY
+                    "Authorization": auth.user.id_token,
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ title, description }),
             });
@@ -104,10 +106,19 @@ export default function Create() {
                 // window.location.href = "/"; // 리다이렉트 예시
                 navigate("/feed");
             }
-        } catch (error) {
+        }}
+        catch (error) {
             console.error("에러:", error);
         }
     };
+
+    if (!auth.isAuthenticated) {
+        return (
+            <Container>
+                <Title>로그인이 필요한 페이지입니다.</Title>
+            </Container>
+        );
+    }
 
     return (
         <Container>
@@ -133,7 +144,6 @@ export default function Create() {
             <ButtonWrapper>
                 <Button onClick={handleSubmit}>업로드</Button>
             </ButtonWrapper>
-
         </Container>
     );
 }

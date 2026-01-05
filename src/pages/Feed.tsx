@@ -1,11 +1,12 @@
 import styled from 'styled-components';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "react-oidc-context";
 import FeedCard from "../components/FeedCard.tsx";
 import type { FeedItem } from "../types/FeedItem.ts";
 
 const API_URL = import.meta.env.VITE_ORITTEUL_API_URL + "/get-post";
-const API_KEY = import.meta.env.VITE_API_KEY;
+// const API_KEY = import.meta.env.VITE_API_KEY;
 
 const Container = styled.div`
     display: flex;
@@ -42,14 +43,27 @@ const GridContainer = styled.div`
 export default function Feed() {
     const [items, setItems] = useState<FeedItem[]>([]);
     const navigate = useNavigate();
+    const auth = useAuth();
 
     useEffect(() => {
+        if (auth.isAuthenticated && auth.user?.id_token) {
         fetch(API_URL, {
-            headers: { "X-Api-Key": API_KEY } // 헤더에 열쇠 추가!
+            headers: {
+                "Authorization": auth.user.id_token,
+                "Content-Type": "application/json"
+            }
         })
             .then((res) => res.json())
             .then((data) => setItems(data));
-    }, []);
+    }}, [auth.isAuthenticated, auth.user?.id_token]);
+
+    if (!auth.isAuthenticated) {
+        return (
+            <Container>
+                <Title>로그인이 필요한 페이지입니다.</Title>
+            </Container>
+        );
+    }
 
     return (
         <Container>

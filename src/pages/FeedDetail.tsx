@@ -2,9 +2,10 @@ import styled from 'styled-components';
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { FeedItem } from "../types/FeedItem.ts";
+import { useAuth } from "react-oidc-context";
 
 const API_URL = import.meta.env.VITE_ORITTEUL_API_URL + "/get-post";
-const API_KEY = import.meta.env.VITE_API_KEY;
+// const API_KEY = import.meta.env.VITE_API_KEY;
 
 const Container = styled.div`
     display: flex;
@@ -24,13 +25,17 @@ const Title = styled('div')`
 
 
 export default function FeedDetail() {
-
+    const auth = useAuth();
     const { id } = useParams();
     const [item, setItem] = useState<FeedItem | null>(null);
 
     useEffect(() => {
+        if (auth.isAuthenticated && auth.user?.id_token) {
         fetch(API_URL, {
-            headers: { "X-Api-Key": API_KEY } // 헤더에 열쇠 추가!
+            headers: {
+                "Authorization": auth.user.id_token,
+                "Content-Type": "application/json"
+            } // 헤더에 열쇠 추가!
         })
             .then((res) => res.json())
             .then((data: FeedItem[]) => {
@@ -40,7 +45,15 @@ export default function FeedDetail() {
                 }
             })
             .catch(err => console.error("데이터 로딩 실패:", err));;
-    }, [id]);
+    }}, [id]);
+
+    if (!auth.isAuthenticated) {
+        return (
+            <Container>
+                <Title>로그인이 필요한 페이지입니다.</Title>
+            </Container>
+        );
+    }
 
     if (!item) {
         return (

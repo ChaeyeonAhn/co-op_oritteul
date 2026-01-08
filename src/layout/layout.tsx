@@ -90,6 +90,7 @@ export default function Layout() {
         return <div>Encountering error... {auth.error.message}</div>;
     }
 
+    // AWS 예시 코드
     // if (auth.isAuthenticated) {
     //     return (
     //         <div>

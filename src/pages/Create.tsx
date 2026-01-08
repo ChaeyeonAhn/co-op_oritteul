@@ -83,29 +83,94 @@ export default function Create() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const auth = useAuth();
+    const [files, setFiles] = useState<File[]>([]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+        if (e.target.files) {
+            const selectedFiles = Array.from(e.target.files);
+
+            const isTooLarge = selectedFiles.some(f => f.size > 100 * 1024 * 1024);
+            if (isTooLarge) return alert("100MB를 초과하는 파일이 포함되어 있습니다.");
+
+            setFiles(selectedFiles);
+        }
+    };
+
 
     const handleSubmit = async () => {
         if (!title || !description) return alert("제목과 내용을 입력하세요!");
 
         try {
             if (auth.isAuthenticated && auth.user?.id_token) {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: {
-                    "Authorization": auth.user.id_token,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ title, description }),
-            });
 
-            // const result = await response.json();
-            // console.log("서버 응답:", result); // 여기서 "Saved!"가 찍히는지 확인
+                if (files.length > 0) {
 
-            if (response.ok) {
-                alert("업로드 완료");
-                // window.location.href = "/"; // 리다이렉트 예시
-                navigate("/feed");
-            }
+                    const uploadedUrls = await Promise.all(files.map(async (file) => {
+                        const token = auth.user?.id_token;
+
+                        if (!token) {
+                            alert("로그인 세션이 만료되었습니다.");
+                            return;
+                        }
+
+                        const presignedRes = await fetch(`${import.meta.env.VITE_ORITTEUL_API_URL}/get-presigned-url`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": token
+                            },
+                            body: JSON.stringify({ fileName: file.name, fileType: file.type }),
+                        });
+                        const { uploadUrl, fileKey } = await presignedRes.json();
+
+                        await fetch(uploadUrl, {
+                            method: "PUT",
+                            headers: { "Content-Type": file.type },
+                            body: file,
+                        });
+
+                        return `https://oritteul-media-storage.s3.us-east-1.amazonaws.com/${fileKey}`;
+                    }));
+
+                    const finalRes = await fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": auth.user?.id_token,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            title,
+                            description,
+                            fileUrls: uploadedUrls
+                        }),
+                    });
+
+                    if (finalRes.ok) {
+                        alert("포스트와 미디어가 모두 업로드되었습니다!");
+                        navigate("/feed");
+                    }
+                }
+
+            else {
+                    const response = await fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": auth.user.id_token,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ title, description }),
+                    });
+
+                    const result = await response.json();
+                    console.log("서버 응답:", result);
+
+                    if (response.ok) {
+                        alert("업로드 완료");
+                        navigate("/feed");
+                    }
+                }
+
         }}
         catch (error) {
             console.error("에러:", error);
@@ -125,6 +190,11 @@ export default function Create() {
             <Title>
                 작품 업로드
             </Title>
+            <input
+                type="file"
+                onChange={handleFileChange}
+                multiple
+            />
             <InputWrapper>
                 <InputLabel>제목</InputLabel>
                 <TitleInput

@@ -76,6 +76,7 @@ export default function Feed() {
                         key={index}
                         title={item.title}
                         description={item.description}
+                        fileUrls={item.fileUrls}
                         onClick={() => navigate(`/feed/${item.id}`)}
                     />
                 ))}

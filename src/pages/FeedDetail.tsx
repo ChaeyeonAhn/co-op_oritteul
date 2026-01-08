@@ -23,11 +23,51 @@ const Title = styled('div')`
     font-size: 36px;
 `
 
+const ImagePreview = styled.img`
+    width: 100%;
+    object-fit: fill;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background-color: #f0f0f0;
+`;
+
+const VideoPreview = styled.video`
+    width: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: block;
+`
+
+const AudioPreview = styled.audio`
+    width: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: block;
+`
+
+const getMedia = (url: string) => {
+    if (!url) return null;
+    if (url.match(/\.(jpeg|jpg|gif|png|webp)$/i)) return <ImagePreview src={url} alt="첨부 이미지" />;
+    if (url.match(/\.(mp4|webm|ogg|mov)$/i))
+        return <VideoPreview
+        src={url}
+        controls={false}
+        muted
+        onMouseOver={(e) => e.currentTarget.play()}
+        onMouseOut={(e) => e.currentTarget.pause()}
+    />
+    if (url.match(/\.(mp3|wav|ogg|aac)$/i)) return <AudioPreview src={url} controls />;
+    return null;
+}
+
 
 export default function FeedDetail() {
     const auth = useAuth();
     const { id } = useParams();
     const [item, setItem] = useState<FeedItem | null>(null);
+
 
     useEffect(() => {
         if (auth.isAuthenticated && auth.user?.id_token) {
@@ -35,7 +75,7 @@ export default function FeedDetail() {
             headers: {
                 "Authorization": auth.user.id_token,
                 "Content-Type": "application/json"
-            } // 헤더에 열쇠 추가!
+            }
         })
             .then((res) => res.json())
             .then((data: FeedItem[]) => {
@@ -68,6 +108,9 @@ export default function FeedDetail() {
             <Title>
                 {item.title}
             </Title>
+            {item.fileUrls && item.fileUrls.map(fileUrl => (
+                getMedia(fileUrl)
+            ))}
             {item.description}
         </Container>
     );
